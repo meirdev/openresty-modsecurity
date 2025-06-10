@@ -57,7 +57,7 @@ RUN set -eux; \
     tar -xvzf openresty-$OPENRESTY_VERSION.tar.gz; \
     cd openresty-$OPENRESTY_VERSION/; \
     ./configure --with-compat --add-dynamic-module=../ModSecurity-nginx; \
-    gmake \
+    gmake; \
     gmake install;
 
 RUN set -eux; \
