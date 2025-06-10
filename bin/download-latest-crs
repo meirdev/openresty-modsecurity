@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OWASP_CRS_DIR="/etc/modsecurity.d/owasp-crs"
+if [[ ! -d "$OWASP_CRS_DIR" ]]; then
+    echo "Directory $OWASP_CRS_DIR does not exist. Creating it."
+    mkdir -p "$OWASP_CRS_DIR"
+fi
+
+LASTEST_RELEASE_JSON=$(curl -s https://api.github.com/repos/coreruleset/coreruleset/releases/latest)
+if [[ -z "$LASTEST_RELEASE_JSON" ]]; then
+    echo "Failed to fetch the latest release information."
+    exit 1
+fi
+
+LATEST_RELEASE_VERSION=$(echo "$LASTEST_RELEASE_JSON" | jq -r '.tag_name')
+if [[ -z "$LATEST_RELEASE_VERSION" ]]; then
+    echo "Failed to parse the latest version from the release information."
+    exit 1
+fi
+
+LATEST_RELEASE_URL=$(echo "$LASTEST_RELEASE_JSON" | jq -r '.assets[] | select(.name | endswith(".tar.gz")) | .browser_download_url')
+if [[ -z "$LATEST_RELEASE_URL" ]]; then
+    echo "No valid release found."
+    exit 1
+fi
+
+echo "Downloading latest OWASP CRS from $LATEST_RELEASE_URL"
+curl -sSL "$LATEST_RELEASE_URL" -o latest.tar.gz
+if [[ $? -ne 0 ]]; then
+    echo "Failed to download the latest OWASP CRS."
+    exit 1
+fi
+
+TARGET_DIR="$OWASP_CRS_DIR/$LATEST_RELEASE_VERSION"
+if [[ -d "$TARGET_DIR" ]]; then
+    echo "Directory $TARGET_DIR already exists. Removing it."
+    rm -rf "$TARGET_DIR"
+fi
+
+echo "Extracting the downloaded OWASP CRS"
+mkdir "$TARGET_DIR"
+tar -zxf latest.tar.gz --strip-components=1 -C "$TARGET_DIR"
+
+echo "Creating symlink for latest CRS version"
+ln -s "$TARGET_DIR" "$OWASP_CRS_DIR/latest"
+
+echo "Cleaning up downloaded files"
+rm -f latest.tar.gz
