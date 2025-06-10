@@ -23,6 +23,7 @@ RUN apt update -y; \
     g++ \
     git \
     gpg \
+    jq \
     libcurl4-gnutls-dev \
     libfuzzy-dev \
     libmaxminddb-dev \
