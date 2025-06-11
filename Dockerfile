@@ -77,9 +77,11 @@ RUN set -eux; \
 
 COPY ./nginx /etc/nginx
 
+RUN mkdir -p /var/log/nginx;
+
 ENV LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH=/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:$PATH
 
 EXPOSE 80 443
 
-ENTRYPOINT [ "nginx", "-c", "/etc/nginx/nginx.conf" ]
+CMD ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/nginx.conf"]
