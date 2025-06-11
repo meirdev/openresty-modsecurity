@@ -78,6 +78,7 @@ RUN set -eux; \
 COPY ./nginx /etc/nginx
 
 RUN mkdir -p /var/log/nginx;
+RUN mkdir -p /var/tmp/nginx;
 
 ENV LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH=/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:$PATH
